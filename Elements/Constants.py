@@ -17,6 +17,8 @@ CommandTemplate = {
     'color': {'start': "<font color=#", 'end': "</font>"},
 }
 
+SPECIAL_CHARS = "^$\\[]{}?"
+
 class RegexOptions:
     BRACKETS = '()'
     CONCATENATIONS = '.|'

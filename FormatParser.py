@@ -2,7 +2,7 @@ import sys
 
 from typing import List, Dict
 
-from Elements.Constants import CommandType, RegexOptions
+from Elements.Constants import CommandType, RegexOptions, SPECIAL_CHARS
 from Elements.Containers import Commands, Command
 from Exceptions import RegexFormatException, CommandFormatException
 
@@ -99,8 +99,8 @@ def translate_regex(input_r: str):
                 if char == '.':
                     continue
                 out_c = char
-                if out_c == '\\':
-                    out_c = '\\\\'
+                if out_c in SPECIAL_CHARS:
+                    out_c = '\\' + out_c
                 if is_negation:
                     is_negation = False
                     out_c = "[^" + out_c + "]"
@@ -108,17 +108,22 @@ def translate_regex(input_r: str):
             else:
                 raise RegexFormatException('Unexpected character')
         else:
+            escaped_out = ""
             is_not_escaped = True
             if char in RegexOptions.SPECIAL:
                 if char == '!':
-                    output_r += '!'
+                    escaped_out = '!'
                 else:
-                    output_r += '\\' + char
+                    escaped_out = '\\' + char
             elif char == '%':
-                output_r += '%'
+                escaped_out = '%'
             elif char in RegexOptions.ACCEPTED_ESCAPED:
-                output_r += RegexOptions.ESCAPE_MAP[char]
+                escaped_out = RegexOptions.ESCAPE_MAP[char]
             else:
                 raise RegexFormatException('Unexpected character')
+            if is_negation:
+                is_negation = False
+                escaped_out = "[^(" + escaped_out + ")]"
 
+            output_r += escaped_out
     return output_r
